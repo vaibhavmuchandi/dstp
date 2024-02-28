@@ -179,12 +179,22 @@ importers:
       '@libp2p/websockets':
         specifier: ^8.0.16
         version: 8.0.16
+      '@multiformats/multiaddr':
+        specifier: ^12.1.14
+        version: 12.1.14
       it-pipe:
         specifier: ^3.0.1
         version: 3.0.1
+      it-pushable:
+        specifier: ^3.2.3
+        version: 3.2.3
       libp2p:
         specifier: ^1.2.4
         version: 1.2.4
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
 
   packages/eslint-config:
     devDependencies:
@@ -206,6 +216,19 @@ importers:
       eslint-plugin-only-warn:
         specifier: ^1.1.0
         version: 1.1.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
+  packages/tests:
+    dependencies:
+      '@multiformats/multiaddr':
+        specifier: ^12.1.14
+        version: 12.1.14
+      client:
+        specifier: workspace:^
+        version: link:../client
+    devDependencies:
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
