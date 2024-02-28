@@ -2,9 +2,12 @@
   "name": "client",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && tsc"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^13.0.0",
@@ -16,10 +19,15 @@
     "@libp2p/mplex": "^10.0.16",
     "@libp2p/ping": "^1.0.12",
     "@libp2p/websockets": "^8.0.16",
+    "@multiformats/multiaddr": "^12.1.14",
     "it-pipe": "^3.0.1",
+    "it-pushable": "^3.2.3",
     "libp2p": "^1.2.4"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
 }

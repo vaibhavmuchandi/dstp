@@ -11,9 +11,6 @@ import { Libp2pNode } from "./types.js";
 
 export const createLibp2pNode = async (): Promise<Libp2pNode> => {
     const node = await createLibp2p({
-        addresses: {
-            listen: ['/ip4/0.0.0.0/tcp/44444/ws']
-        },
         transports: [
             webSockets()
         ],
