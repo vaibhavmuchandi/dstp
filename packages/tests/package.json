@@ -1,0 +1,21 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "speed-test": "rm -rf dist && tsc && node dist/speed-test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@multiformats/multiaddr": "^12.1.14",
+    "client": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
