@@ -21,6 +21,7 @@ export default class DSTPNode {
     private async _initProtocol() {
         this.node.handle('/dstp/0.0.0/upload-test', this._uploadTest)
         this.node.handle('/dstp/0.0.0/download-test', this._downloadTest)
+        this.node.handle('/dstp/0.0.0/ping-test', this._pingTest)
     }
 
     private async _uploadTest({ stream }) {
@@ -54,5 +55,10 @@ export default class DSTPNode {
         const downloadEnd = performance.now()
         const downloadSpeedMbps = calculateSpeedMbps(50 * 1024 * 1024, downloadStart, downloadEnd);
         console.log(`Estimated download speed: ${downloadSpeedMbps} Mbps`);
+    }
+
+    private async _pingTest({ stream }) {
+        console.log(`Client connected for ping test`);
+        await pipe([stream.source], stream.sink)
     }
 }
