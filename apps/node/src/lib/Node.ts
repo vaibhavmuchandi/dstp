@@ -47,7 +47,7 @@ export default class DSTPNode {
     private async _downloadTest({ stream }) {
         console.log('Client connected for download speed test');
         const downloadStart = performance.now()
-        const testData = Buffer.alloc(50 * 1024 * 1024);
+        const testData = Buffer.alloc(200 * 1024 * 1024);
         await pipe(
             [testData],
             stream.sink
