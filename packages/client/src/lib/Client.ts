@@ -4,7 +4,7 @@ import { pipe } from "it-pipe"
 import { pushable } from "it-pushable"
 import EventEmitter from "eventemitter3"
 
-import { calculateSpeedMbps, calculateSpeedMbpsRealTime } from "../utils/helper.js";
+import { calculateSpeedMbps, calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
 import { SPEEDTEST_EVENTS, TSPEEDTEST_EVENTS } from "../utils/events.js";
 import { Libp2pNode } from "../utils/types.js";
 
@@ -49,47 +49,58 @@ export class DSTPClient {
     }
 
     private async _uploadData(stream: Stream) {
-        const chunkSize = 5 * 1024 * 1024;
-        const totalSize = 50 * 1024 * 1024;
-        const push = pushable<Buffer>();
+        const packetSize = 5241920; // 5 MB per packet
+        const packets = 41; // Total packets to send
+        const dataStream = pushable();
+        const ackTimes = [];
+        let intervalBytesAcked = 0;
+        let lastAckTime = performance.now();
 
-        let intervalBytesSent = 0;
-        const startUploadTime = performance.now();
-        let lastReportTime = startUploadTime;
+        let uploadSpeed;
 
-        const pushDataChunks = async () => {
-            for (let sent = 0; sent < totalSize; sent += chunkSize) {
-                const chunk = Buffer.alloc(Math.min(chunkSize, totalSize - sent));
-                push.push(chunk);
-                intervalBytesSent += chunk.length;
-                await new Promise(resolve => setTimeout(resolve, 1000)); // 10 ms delay to allow pushing of individual chunks
-            }
-            push.end();
-        };
+        // Function to send packets
+        for (let i = 1; i < packets; i++) {
+            const packet = createPacket(i, packetSize);
+            dataStream.push(packet);
+        }
+        dataStream.end();
 
-        const interval = setInterval(() => {
-            const now = performance.now();
-            const intervalDurationSeconds = (now - lastReportTime) / 1000;
-            if (intervalBytesSent > 0) {
-                const speedMbps = calculateSpeedMbpsRealTime(intervalBytesSent, intervalDurationSeconds);
-                this.EE.emit(SPEEDTEST_EVENTS.UPLOAD_SPEED, { speedMbps })
-                intervalBytesSent = 0;
-                lastReportTime = now;
-            }
-        }, 1000);
-
-        await pushDataChunks();
-
-        await pipe(
-            push,
+        // Start sending packets to the client
+        pipe(
+            dataStream,
             stream.sink
         );
 
-        clearInterval(interval);
+        for await (const ack of stream.source) {
+            const ackMessage = new TextDecoder().decode(ack.subarray());
 
-        const endUploadTime = performance.now() - 10000
-        const finalSpeedMbps = calculateSpeedMbps(totalSize, startUploadTime, endUploadTime);
-        this.EE.emit(SPEEDTEST_EVENTS.UPLOAD_SPEED_FINAL, { speedMbps: finalSpeedMbps })
+            // Parse the ACK message for the sequence number, assuming format "ACK:<seqNo>"
+            const [ackType, seqNoStr] = ackMessage.split(':');
+            if (ackType === 'ACK') {
+                const seqNo = parseInt(seqNoStr, 10);
+                ackTimes.push(performance.now()); // Record the time when each ACK is received
+                intervalBytesAcked += packetSize; // Assume each ACK corresponds to a full packet
+
+                // Calculate speed at regular intervals
+                const now = performance.now();
+                const intervalDurationSeconds = (now - lastAckTime) / 500;
+                if (intervalDurationSeconds >= 0.5) { // Update every second, adjust as needed
+                    const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytesAcked, intervalDurationSeconds);
+                    if (!uploadSpeed) uploadSpeed = intervalSpeedMbps;
+                    else {
+                        if (intervalSpeedMbps > uploadSpeed) {
+                            uploadSpeed = intervalSpeedMbps
+                        }
+                    }
+                    this.EE.emit(SPEEDTEST_EVENTS.UPLOAD_SPEED, { speedMbps: intervalSpeedMbps })
+
+                    // Reset for the next interval
+                    intervalBytesAcked = 0;
+                    lastAckTime = now;
+                }
+            }
+        }
+        this.EE.emit(SPEEDTEST_EVENTS.UPLOAD_SPEED_FINAL, { speedMbps: uploadSpeed })
     }
 
     private async _downloadData(stream: Stream, dstp: DSTPClient) {
