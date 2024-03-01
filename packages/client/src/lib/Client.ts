@@ -95,34 +95,60 @@ export class DSTPClient {
     private async _downloadData(stream: Stream, dstp: DSTPClient) {
         let totalDownloadedBytes = 0;
         let intervalBytes = 0;
+        let packet = Buffer.alloc(0);
         let lastReportTime = performance.now();
-        const startDownloadTime = performance.now();
+        let totalAcks = 0;
 
-        await pipe(
+        const ackStream = pushable();
+
+        // Start sending ACKs as soon as they are pushed to ackStream
+        const ackSendingPromise = pipe(ackStream, stream.sink);
+
+        let downloadSpeed;
+
+        // Process received packets and push ACKs to ackStream
+        const packetReceivingPromise = pipe(
             stream.source,
             async function (source) {
                 for await (const chunk of source) {
                     totalDownloadedBytes += chunk.length;
                     intervalBytes += chunk.length;
-                    const now = performance.now();
-                    const intervalDurationSeconds = (now - lastReportTime) / 1000;
+                    packet = Buffer.concat([packet, chunk.subarray()]); // Assuming chunk is Buffer or Uint8Array
+                    if (packet.byteLength === 5241920) { // Check if we have a complete packet
+                        const seqNo = packet.readInt32BE(0);
+                        packet = Buffer.alloc(0); // Reset packet for the next one
+                        ackStream.push(Buffer.from(`ACK:${seqNo}`)); // Send ACK immediately
+                        totalAcks += 1
+                        if (totalAcks == 40) {
+                            setTimeout(() => {
+                                ackStream.end()
+                            }, 500)
+                        }
 
-                    if (intervalDurationSeconds >= 1) {
-                        const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytes, intervalDurationSeconds);
-                        dstp.EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED, { speedMbps: intervalSpeedMbps })
-                        intervalBytes = 0;
-                        lastReportTime = now;
+                        const now = performance.now();
+                        const intervalDurationSeconds = (now - lastReportTime) / 500;
+                        if (intervalDurationSeconds >= 0.5) {
+                            const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytes, intervalDurationSeconds);
+                            if (!downloadSpeed) downloadSpeed = intervalSpeedMbps;
+                            else {
+                                if (intervalSpeedMbps > downloadSpeed) {
+                                    downloadSpeed = intervalSpeedMbps
+                                }
+                            }
+                            dstp.EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED, { speedMbps: intervalSpeedMbps });
+                            intervalBytes = 0;
+                            lastReportTime = now;
+                        }
                     }
                 }
             }
         );
 
-        const endDownloadTime = performance.now()
-        const finalSpeedMbps = calculateSpeedMbps(totalDownloadedBytes, startDownloadTime, endDownloadTime);
-        this.EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED_FINAL, { speedMbps: finalSpeedMbps })
-
-        return
+        // Wait for both the packet receiving and ACK sending to complete
+        await Promise.all([packetReceivingPromise, ackSendingPromise]);
+        dstp.EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED_FINAL, { speedMbps: downloadSpeed });
     }
+
 
     private async _pingTest(stream: Stream, dstp: DSTPClient) {
         const pingMessage = new TextEncoder().encode('ping');
