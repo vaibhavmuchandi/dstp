@@ -27,6 +27,7 @@
     "@libp2p/websockets": "^8.0.16",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.3",
-    "libp2p": "^1.2.4"
+    "libp2p": "^1.2.4",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.42.0"
   }
 }

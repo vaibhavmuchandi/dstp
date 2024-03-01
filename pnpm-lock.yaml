@@ -105,6 +105,9 @@ importers:
       libp2p:
         specifier: ^1.2.4
         version: 1.2.4
+      uWebSockets.js:
+        specifier: github:uNetworking/uWebSockets.js#v20.42.0
+        version: github.com/uNetworking/uWebSockets.js/f40213ec0a97d0d8721d9d32d92d6eb6ddcd22e7
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -197,6 +200,9 @@ importers:
       libp2p:
         specifier: ^1.2.4
         version: 1.2.4
+      ws:
+        specifier: ^8.16.0
+        version: 8.16.0
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -5639,3 +5645,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  github.com/uNetworking/uWebSockets.js/f40213ec0a97d0d8721d9d32d92d6eb6ddcd22e7:
+    resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/f40213ec0a97d0d8721d9d32d92d6eb6ddcd22e7}
+    name: uWebSockets.js
+    version: 20.42.0
+    dev: false
