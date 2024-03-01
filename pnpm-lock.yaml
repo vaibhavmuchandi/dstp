@@ -99,6 +99,9 @@ importers:
       it-pipe:
         specifier: ^3.0.1
         version: 3.0.1
+      it-pushable:
+        specifier: ^3.2.3
+        version: 3.2.3
       libp2p:
         specifier: ^1.2.4
         version: 1.2.4
@@ -560,6 +563,8 @@ packages:
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
       wherearewe: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@chainsafe/libp2p-yamux@6.0.2:
@@ -722,6 +727,8 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@libp2p/identify@1.0.15:
@@ -838,6 +845,8 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@libp2p/peer-id@4.0.7:

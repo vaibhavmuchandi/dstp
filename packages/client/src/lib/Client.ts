@@ -4,7 +4,7 @@ import { pipe } from "it-pipe"
 import { pushable } from "it-pushable"
 import EventEmitter from "eventemitter3"
 
-import { calculateSpeedMbps, calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
+import { calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
 import { SPEEDTEST_EVENTS, TSPEEDTEST_EVENTS } from "../utils/events.js";
 import { Libp2pNode } from "../utils/types.js";
 

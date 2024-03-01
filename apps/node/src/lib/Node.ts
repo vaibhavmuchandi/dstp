@@ -2,7 +2,7 @@ import { pipe } from "it-pipe";
 import { pushable } from "it-pushable"
 
 import { GeoLocation, Libp2pNode } from "../utils/types.js";
-import { calculateSpeedMbps, calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
+import { calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
 
 export default class DSTPNode {
     node: Libp2pNode;

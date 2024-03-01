@@ -1,22 +1,21 @@
-export function calculateSpeedMbps(bytes, startTime, endTime) {
-    const durationSeconds = (endTime - startTime) / 1000;
-    const bits = bytes * 8;
-    return (bits / durationSeconds) / 1e6;
-};
-
-export const calculateSpeedMbpsRealTime = (bytes: number, durationSeconds: number): number => {
+export function calculateSpeedMbpsRealTime(bytes: number, durationSeconds: number) {
     return (bytes * 8) / (1024 * 1024) / durationSeconds; // Convert bytes to bits, then to Mbps
 };
 
-export function createPacket(seqNum: number, size: number): Buffer {
-    // Allocate buffer for the packet: 4 bytes for the seqNum and the rest for the payload
-    const packet = Buffer.alloc(size);
 
-    // Write the sequence number at the beginning of the packet
-    packet.writeInt32BE(seqNum, 0);
+export function createPacket(seqNum, size) {
+    const buffer = new ArrayBuffer(size); // Create an ArrayBuffer of the specified size
+    const view = new DataView(buffer); // Create a DataView for the ArrayBuffer
 
-    // The rest of the packet can be payload; here we're just filling it with zeros
-    // In a real application, you might want to fill it with actual data or leave it as zeros
+    // Use the DataView to write a 32-bit int at the beginning of the buffer
+    view.setInt32(0, seqNum, false); // 'false' for big-endian
 
-    return packet;
+    // The rest of the buffer can be left as zeros or filled with data
+    // For example, to fill the rest with a pattern:
+    // for (let i = 4; i < size; i++) {
+    //     view.setUint8(i, someValue); // Fill each byte with someValue
+    // }
+
+    // Return a Uint8Array view of the buffer for convenience
+    return new Uint8Array(buffer);
 }
