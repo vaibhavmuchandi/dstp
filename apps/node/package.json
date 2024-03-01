@@ -26,6 +26,7 @@
     "@libp2p/ping": "^1.0.12",
     "@libp2p/websockets": "^8.0.16",
     "it-pipe": "^3.0.1",
+    "it-pushable": "^3.2.3",
     "libp2p": "^1.2.4"
   }
 }
