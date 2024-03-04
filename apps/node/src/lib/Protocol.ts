@@ -1,7 +1,9 @@
 
 import { pipe } from "it-pipe";
 import { pushable } from "it-pushable"
-import { calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
+import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/helper.js";
+import { fetchRandomness } from "../utils/randomness.js";
+import { constructMerkleTree } from "../utils/merkle.js";
 
 export async function _uploadTest({ stream }) {
     console.log('Client connected for upload speed test');
@@ -71,12 +73,17 @@ export async function _downloadTest({ stream }) {
     let intervalBytesAcked = 0;
     let lastAckTime = performance.now();
 
+    let packetHashes: string[] = [];
     let downloadSpeed;
+
+    const randomness = await fetchRandomness()
 
     // Function to send packets
     for (let i = 1; i < packets; i++) {
-        const packet = createPacket(i, packetSize);
+        const packet = createPacket(i, packetSize, randomness);
+        const packetHash = hashPacket(packet);
         dataStream.push(packet);
+        packetHashes.push(packetHash);
     }
     dataStream.end();
 
@@ -117,6 +124,9 @@ export async function _downloadTest({ stream }) {
         }
     }
     console.log('Final download speed: ', downloadSpeed)
+    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
+    console.log(`Merkle Size: `, merkleTree.length)
+    console.log('Merkle Root:', merkleRoot);
 }
 
 

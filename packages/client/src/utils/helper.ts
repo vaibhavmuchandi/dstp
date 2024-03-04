@@ -1,3 +1,5 @@
+import { createHash } from "crypto-browserify"
+
 export function calculateSpeedMbpsRealTime(bytes: number, durationSeconds: number) {
     return (bytes * 8) / (1024 * 1024) / durationSeconds; // Convert bytes to bits, then to Mbps
 };
@@ -19,3 +21,9 @@ export function createPacket(seqNum, size) {
     // Return a Uint8Array view of the buffer for convenience
     return new Uint8Array(buffer);
 }
+
+export function hashPacket(packet: Buffer): string {
+    const hash = createHash('sha256').update(packet).digest('hex');
+    return hash
+}
+

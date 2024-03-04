@@ -1,9 +1,10 @@
 import { Stream } from "@libp2p/interface";
 import { pushable } from "it-pushable";
-import { calculateSpeedMbpsRealTime, createPacket } from "../utils/helper.js";
+import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/helper.js";
 import { pipe } from "it-pipe";
 import { SPEEDTEST_EVENTS } from "../utils/events.js";
 import EventEmitter from "eventemitter3";
+import { constructMerkleTree } from "../utils/merkle.js";
 
 export async function _uploadData(stream: Stream, EE: EventEmitter) {
     const packetSize = 5241920; // 5 MB per packet
@@ -67,6 +68,8 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
     let lastReportTime = performance.now();
     let totalAcks = 0;
 
+    let packetHashes = [];
+
     const ackStream = pushable();
 
     // Start sending ACKs as soon as they are pushed to ackStream
@@ -84,6 +87,8 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
                 packet = Buffer.concat([packet, chunk.subarray()]); // Assuming chunk is Buffer or Uint8Array
                 if (packet.byteLength === 5241920) { // Check if we have a complete packet
                     const seqNo = packet.readInt32BE(0);
+                    const packetHash = hashPacket(packet); // Hash the complete packet
+                    packetHashes.push(packetHash)
                     packet = Buffer.alloc(0); // Reset packet for the next one
                     ackStream.push(Buffer.from(`ACK:${seqNo}`)); // Send ACK immediately
                     totalAcks += 1
@@ -114,6 +119,9 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
 
     // Wait for both the packet receiving and ACK sending to complete
     await Promise.all([packetReceivingPromise, ackSendingPromise]);
+    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
+    console.log(`Merkle Root: ${merkleRoot}`)
+    console.log(`Merkle Tree Length: ${merkleTree.length}`)
     EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED_FINAL, { speedMbps: downloadSpeed });
 }
 
