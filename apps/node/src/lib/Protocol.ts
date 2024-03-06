@@ -81,8 +81,8 @@ export async function _downloadTest({ stream }) {
     // Function to send packets
     for (let i = 1; i < packets; i++) {
         const packet = createPacket(i, packetSize, randomness);
-        const packetHash = hashPacket(packet);
         dataStream.push(packet);
+        const packetHash = hashPacket(packet);
         packetHashes.push(packetHash);
     }
     dataStream.end();
@@ -106,7 +106,7 @@ export async function _downloadTest({ stream }) {
 
             // Calculate speed at regular intervals
             const now = performance.now();
-            const intervalDurationSeconds = (now - lastAckTime) / 500;
+            const intervalDurationSeconds = (now - lastAckTime) / 2000;
             if (intervalDurationSeconds >= 0.5) { // Update every second, adjust as needed
                 const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytesAcked, intervalDurationSeconds);
                 if (!downloadSpeed) downloadSpeed = intervalSpeedMbps;

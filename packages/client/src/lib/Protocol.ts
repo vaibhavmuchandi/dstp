@@ -41,7 +41,7 @@ export async function _uploadData(stream: Stream, EE: EventEmitter) {
 
             // Calculate speed at regular intervals
             const now = performance.now();
-            const intervalDurationSeconds = (now - lastAckTime) / 500;
+            const intervalDurationSeconds = (now - lastAckTime) / 2000;
             if (intervalDurationSeconds >= 0.5) { // Update every second, adjust as needed
                 const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytesAcked, intervalDurationSeconds);
                 if (!uploadSpeed) uploadSpeed = intervalSpeedMbps;
@@ -99,7 +99,7 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
                     }
 
                     const now = performance.now();
-                    const intervalDurationSeconds = (now - lastReportTime) / 500;
+                    const intervalDurationSeconds = (now - lastReportTime) / 2000;
                     if (intervalDurationSeconds >= 0.5) {
                         const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytes, intervalDurationSeconds);
                         if (!downloadSpeed) downloadSpeed = intervalSpeedMbps;
