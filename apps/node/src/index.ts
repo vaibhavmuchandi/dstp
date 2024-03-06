@@ -1,4 +1,5 @@
 import DSTPNode from "./lib/Node.js";
+import { DSTPProtocol } from "./lib/Protocol.js";
 import { createLibp2pNode } from "./utils/createLibp2p.js";
 
 async function main() {

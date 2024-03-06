@@ -96,6 +96,9 @@ importers:
       '@libp2p/websockets':
         specifier: ^8.0.16
         version: 8.0.16
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
       it-pipe:
         specifier: ^3.0.1
         version: 3.0.1

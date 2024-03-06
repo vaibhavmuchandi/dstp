@@ -10,3 +10,17 @@ export type GeoLocation = {
 }
 
 export type Libp2pNode = Libp2p<{ identify: Identify, pubsub: PubSub<GossipsubEvents>, ping: PingService }>
+
+export type RECEIVER_DATA = {
+    merkleRoot: string,
+    speedMbps: number,
+    nodeId?: string,
+    selfId?: string
+}
+
+export type SENDER_DATA = {
+    merkleRoot: string,
+    merkleTree: string[][],
+    clientId?: string,
+    selfId?: string
+}

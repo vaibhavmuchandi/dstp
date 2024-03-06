@@ -4,3 +4,10 @@ import { Libp2p, PubSub } from "@libp2p/interface";
 import { PingService } from "@libp2p/ping"
 
 export type Libp2pNode = Libp2p<{ identify: Identify, pubsub: PubSub<GossipsubEvents>, ping: PingService }>
+
+export type RECEIVER_DATA = {
+    merkleRoot: string,
+    speedMbps: number,
+    nodeId?: string,
+    selfId?: string
+}

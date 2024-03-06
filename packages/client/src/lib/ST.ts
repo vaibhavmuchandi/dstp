@@ -2,9 +2,10 @@ import { Stream } from "@libp2p/interface";
 import { pushable } from "it-pushable";
 import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/helper.js";
 import { pipe } from "it-pipe";
-import { SPEEDTEST_EVENTS } from "../utils/events.js";
+import { INTERNAL_EVENTS, SPEEDTEST_EVENTS } from "../utils/events.js";
 import EventEmitter from "eventemitter3";
 import { constructMerkleTree } from "../utils/merkle.js";
+import { RECEIVER_DATA } from "../utils/types.js";
 
 export async function _uploadData(stream: Stream, EE: EventEmitter) {
     const packetSize = 5241920; // 5 MB per packet
@@ -122,7 +123,12 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
     const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
     console.log(`Merkle Root: ${merkleRoot}`)
     console.log(`Merkle Tree Length: ${merkleTree.length}`)
+    const testData: RECEIVER_DATA = {
+        speedMbps: downloadSpeed,
+        merkleRoot: merkleRoot,
+    }
     EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED_FINAL, { speedMbps: downloadSpeed });
+    EE.emit(INTERNAL_EVENTS.DOWNLOAD_TEST_COMPLETED, testData)
 }
 
 

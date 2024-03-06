@@ -1,9 +1,9 @@
 import { Multiaddr } from "@multiformats/multiaddr"
 import EventEmitter from "eventemitter3"
 
-import { TSPEEDTEST_EVENTS } from "../utils/events.js";
-import { Libp2pNode } from "../utils/types.js";
-import { _downloadData, _uploadData, _pingTest } from "./Protocol.js";
+import { INTERNAL_EVENTS, PROTOCOL_EVENTS, TSPEEDTEST_EVENTS } from "../utils/events.js";
+import { Libp2pNode, RECEIVER_DATA } from "../utils/types.js";
+import { _downloadData, _uploadData, _pingTest } from "./ST.js";
 
 export class DSTPClient {
     private node: Libp2pNode
@@ -32,6 +32,11 @@ export class DSTPClient {
     }
 
     async downloadTest(nodeAddr: Multiaddr) {
+        this.EE.on(INTERNAL_EVENTS.DOWNLOAD_TEST_COMPLETED, (data: RECEIVER_DATA) => {
+            data.nodeId = nodeAddr.getPeerId()
+            data.selfId = this.node.peerId.toString()
+            this.node.services.pubsub.publish(PROTOCOL_EVENTS.ST_ROOT, new TextEncoder().encode(JSON.stringify(data)))
+        })
         await this.node.dial(nodeAddr)
         const stream = await this.node.dialProtocol(nodeAddr, "/dstp/0.0.0/download-test")
         await _downloadData(stream, this.EE)
