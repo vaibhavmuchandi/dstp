@@ -26,3 +26,15 @@ export function constructMerkleTree(packetHashes: string[]): { merkleRoot: strin
     const merkleRoot = layers[layers.length - 1][0]; // The last layer contains the Merkle root
     return { merkleRoot, merkleTree: layers };
 }
+
+export function generateProof(index: number, merkleTree: string[][]): string[] {
+    let proof = [];
+    for (let layer = 0; layer < merkleTree.length - 1; layer++) {
+        let pairIndex = index % 2 === 0 ? index + 1 : index - 1;
+        if (pairIndex < merkleTree[layer].length) {
+            proof.push(merkleTree[layer][pairIndex]);
+        }
+        index = Math.floor(index / 2);
+    }
+    return proof;
+}

@@ -14,7 +14,7 @@ export default class DSTPNode {
     constructor(options: { node: Libp2pNode, geoLocation: GeoLocation }) {
         this.node = options.node;
         this.geoLocation = options.geoLocation;
-        this.protocol = new DSTPProtocol(this.node)
+        this.protocol = DSTPProtocol.start(this.node)
         this.EE = new EventEmitter()
     }
 

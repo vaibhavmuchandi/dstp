@@ -21,7 +21,7 @@ export const createLibp2pNode = async (): Promise<Libp2pNode> => {
         streamMuxers: [yamux(), mplex()],
         services: {
             identify: identify(),
-            pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+            pubsub: gossipsub({ allowPublishToZeroTopicPeers: true, emitSelf: true }),
             ping: ping({ protocolPrefix: "/dstp/0.0.0/ping" })
         }
     })

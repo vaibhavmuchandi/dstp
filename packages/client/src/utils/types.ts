@@ -7,6 +7,8 @@ export type Libp2pNode = Libp2p<{ identify: Identify, pubsub: PubSub<GossipsubEv
 
 export type RECEIVER_DATA = {
     merkleRoot: string,
+    proof: string[],
+    nounce: number,
     speedMbps: number,
     nodeId?: string,
     selfId?: string

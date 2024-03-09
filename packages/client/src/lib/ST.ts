@@ -4,7 +4,7 @@ import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/h
 import { pipe } from "it-pipe";
 import { INTERNAL_EVENTS, SPEEDTEST_EVENTS } from "../utils/events.js";
 import EventEmitter from "eventemitter3";
-import { constructMerkleTree } from "../utils/merkle.js";
+import { constructMerkleTree, generateProof } from "../utils/merkle.js";
 import { RECEIVER_DATA } from "../utils/types.js";
 
 export async function _uploadData(stream: Stream, EE: EventEmitter) {
@@ -121,11 +121,15 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
     // Wait for both the packet receiving and ACK sending to complete
     await Promise.all([packetReceivingPromise, ackSendingPromise]);
     const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
+    const nounce = Math.floor(Math.random() * merkleTree.length)
+    const proof = generateProof(nounce, merkleTree)
     console.log(`Merkle Root: ${merkleRoot}`)
     console.log(`Merkle Tree Length: ${merkleTree.length}`)
     const testData: RECEIVER_DATA = {
         speedMbps: downloadSpeed,
         merkleRoot: merkleRoot,
+        nounce: nounce,
+        proof: proof
     }
     EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED_FINAL, { speedMbps: downloadSpeed });
     EE.emit(INTERNAL_EVENTS.DOWNLOAD_TEST_COMPLETED, testData)

@@ -26,3 +26,39 @@ export function constructMerkleTree(packetHashes: string[]): { merkleRoot: strin
     const merkleRoot = layers[layers.length - 1][0]; // The last layer contains the Merkle root
     return { merkleRoot, merkleTree: layers };
 }
+
+export function generateProof(index: number, merkleTree: string[][]): string[] {
+    let proof = [];
+    for (let layer = 0; layer < merkleTree.length - 1; layer++) {
+        let pairIndex = index % 2 === 0 ? index + 1 : index - 1;
+        if (pairIndex < merkleTree[layer].length) {
+            proof.push(merkleTree[layer][pairIndex]);
+        }
+        index = Math.floor(index / 2);
+    }
+    return proof;
+}
+
+export function verifyProof(leaf: string, proof: string[], root: string, nounce: number): boolean {
+    // Start by hashing the leaf node, which is an array of strings
+    let computedHash = leaf
+
+    // Recompute the hash up the tree using the proof
+    for (let i = 0; i < proof.length; i++) {
+        const isLeftNode = nounce % 2 === 0;
+        const pairHash = proof[i];
+
+        // Combine the current hash with the proof's hash based on the node's position
+        if (isLeftNode) {
+            computedHash = hash(computedHash + pairHash);
+        } else {
+            computedHash = hash(pairHash + computedHash);
+        }
+
+        // Move up the tree
+        nounce = Math.floor(nounce / 2);
+    }
+
+    // The computed hash at the root should match the provided root
+    return computedHash === root;
+}
