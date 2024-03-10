@@ -3,11 +3,11 @@ import { pipe } from "it-pipe";
 import { pushable } from "it-pushable"
 import { Connection, Stream } from "@libp2p/interface";
 import EventEmitter from "eventemitter3";
-import { SENDER_DATA } from "common-js";
-import { constructMerkleTree } from "common-js";
+import { SENDER_DATA, STAMP } from "common-js";
+import { constructMerkleTree, calculateSpeedMbpsRealTime, calculateAverageSpeed } from "common-js";
 
 import { INTERNAL_EVENTS } from "../utils/events.js";
-import { calculateSpeedMbpsRealTime, createPacket, hashPacket, hash } from "../utils/helper.js";
+import { createPacket, hashPacket, hash } from "../utils/helper.js";
 import { fetchRandomness } from "../utils/randomness.js";
 
 export async function _uploadTest({ stream }) {
@@ -70,7 +70,7 @@ export async function _uploadTest({ stream }) {
 
 export async function _downloadTest(connection: Connection, stream: Stream, EE: EventEmitter) {
     console.log('Client connected for download speed test');
-
+    const stamps: Array<STAMP> = []
     const packetSize = 5241920; // 5 MB per packet
     const packets = 41; // Total packets to send
     const dataStream = pushable();
@@ -79,7 +79,7 @@ export async function _downloadTest(connection: Connection, stream: Stream, EE: 
     let lastAckTime = performance.now();
 
     let packetHashes: string[] = [];
-    let downloadSpeed;
+    const speeds: Array<number> = []
 
     const randomness = await fetchRandomness()
 
@@ -114,27 +114,23 @@ export async function _downloadTest(connection: Connection, stream: Stream, EE: 
             const intervalDurationSeconds = (now - lastAckTime) / 2000;
             if (intervalDurationSeconds >= 0.5) { // Update every second, adjust as needed
                 const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytesAcked, intervalDurationSeconds);
-                if (!downloadSpeed) downloadSpeed = intervalSpeedMbps;
-                else {
-                    if (intervalSpeedMbps > downloadSpeed) {
-                        downloadSpeed = intervalSpeedMbps
-                    }
-                }
-                console.log(`Current download speed of client: ${intervalSpeedMbps.toFixed(2)} Mbps`);
-
+                speeds.push(intervalSpeedMbps)
+                const stamp: STAMP = { intervalDuration: intervalDurationSeconds, size: intervalBytesAcked }
+                stamps.push(stamp)
                 // Reset for the next interval
                 intervalBytesAcked = 0;
                 lastAckTime = now;
             }
         }
     }
-    console.log('Final download speed: ', downloadSpeed)
+    console.log('Final download speed: ', calculateAverageSpeed(stamps))
     const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
     console.log(`Merkle Size: `, merkleTree.length)
     console.log('Merkle Root:', merkleRoot);
     const senderData: SENDER_DATA = {
         merkleRoot,
         merkleTree,
+        stamps,
         clientId: connection.remotePeer.toString(),
     }
     EE.emit(INTERNAL_EVENTS.DOWNLOAD_TEST_COMPLETED, senderData)

@@ -1,4 +1,4 @@
-import { Libp2pNode, RECEIVER_DATA, SENDER_DATA } from "common-js"
+import { Libp2pNode, RECEIVER_DATA, SENDER_DATA, calculateSpeedMbps } from "common-js"
 import { verifyProof } from "common-js"
 
 import { PROTOCOL_EVENTS } from "../utils/events.js"
@@ -7,8 +7,8 @@ import { hash } from "../utils/helper.js"
 
 export class DSTPProtocol {
     private node: Libp2pNode
-    private rootPool: Map<string, RECEIVER_DATA>
-    private memPool: Map<string, SENDER_DATA>
+    private rootPool: Map<string, RECEIVER_DATA> // From the client
+    private memPool: Map<string, SENDER_DATA> // From the node
     private confirmedPool: Set<string>
     private rejected: Set<string>
     constructor(node: Libp2pNode) {
@@ -53,12 +53,14 @@ export class DSTPProtocol {
 
     private _confirm(merkleRoot: string) {
         if (this.memPool.get(merkleRoot) && this.rootPool.get(merkleRoot)) {
-            const { merkleTree } = this.memPool.get(merkleRoot)
-            const { nounce, proof } = this.rootPool.get(merkleRoot)
+            const { merkleTree, stamps } = this.memPool.get(merkleRoot)
+            const { nounce, proof, speedMbps } = this.rootPool.get(merkleRoot)
             const leaf = merkleTree[0][nounce]
             const isConfirmed = verifyProof(leaf, proof, merkleRoot, nounce, hash)
             if (isConfirmed) {
-                console.log('\x1b[32m%s\x1b[0m', 'Speed Test Confirmed');
+                console.log('\x1b[32m%s\x1b[0m', 'Data Integrity Done');
+                // const speed = calculateSpeedMbps(size, startTime, endTime)
+                // console.log(`Calculated Speed from Validators: ${speed}, speed reported by client: ${speedMbps}`)
                 this.confirmedPool.add(merkleRoot)
             } else {
                 console.log('\x1b[31m%s\x1b[0m', 'Speed Test Rejected');

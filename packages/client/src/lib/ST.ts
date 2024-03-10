@@ -1,11 +1,11 @@
 import { Stream } from "@libp2p/interface";
 import { pushable } from "it-pushable";
-import { calculateSpeedMbpsRealTime, createPacket, hashPacket, hash } from "../utils/helper.js";
+import { createPacket, hashPacket, hash } from "../utils/helper.js";
 import { pipe } from "it-pipe";
 import { INTERNAL_EVENTS, SPEEDTEST_EVENTS } from "../utils/events.js";
 import EventEmitter from "eventemitter3";
-import { constructMerkleTree, generateProof } from "common-js";
-import { RECEIVER_DATA } from "common-js";
+import { constructMerkleTree, generateProof, calculateSpeedMbpsRealTime, calculateAverageSpeed } from "common-js";
+import { RECEIVER_DATA, STAMP } from "common-js";
 
 export async function _uploadData(stream: Stream, EE: EventEmitter) {
     const packetSize = 5241920; // 5 MB per packet
@@ -69,14 +69,14 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
     let lastReportTime = performance.now();
     let totalAcks = 0;
 
+    const stamps: Array<STAMP> = []
+
     let packetHashes = [];
 
     const ackStream = pushable();
 
     // Start sending ACKs as soon as they are pushed to ackStream
     const ackSendingPromise = pipe(ackStream, stream.sink);
-
-    let downloadSpeed;
 
     // Process received packets and push ACKs to ackStream
     const packetReceivingPromise = pipe(
@@ -103,12 +103,8 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
                     const intervalDurationSeconds = (now - lastReportTime) / 2000;
                     if (intervalDurationSeconds >= 0.5) {
                         const intervalSpeedMbps = calculateSpeedMbpsRealTime(intervalBytes, intervalDurationSeconds);
-                        if (!downloadSpeed) downloadSpeed = intervalSpeedMbps;
-                        else {
-                            if (intervalSpeedMbps > downloadSpeed) {
-                                downloadSpeed = intervalSpeedMbps
-                            }
-                        }
+                        const stamp: STAMP = { intervalDuration: intervalDurationSeconds, size: intervalBytes }
+                        stamps.push(stamp)
                         EE.emit(SPEEDTEST_EVENTS.DOWNLOAD_SPEED, { speedMbps: intervalSpeedMbps });
                         intervalBytes = 0;
                         lastReportTime = now;
@@ -120,6 +116,7 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
 
     // Wait for both the packet receiving and ACK sending to complete
     await Promise.all([packetReceivingPromise, ackSendingPromise]);
+    const downloadSpeed = calculateAverageSpeed(stamps)
     const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
     const nounce = Math.floor(Math.random() * merkleTree.length)
     const proof = generateProof(nounce, merkleTree)

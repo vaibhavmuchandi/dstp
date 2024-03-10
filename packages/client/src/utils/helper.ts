@@ -1,9 +1,5 @@
 import { createHash } from "crypto-browserify"
 
-export function calculateSpeedMbpsRealTime(bytes: number, durationSeconds: number) {
-    return (bytes * 8) / (1024 * 1024) / durationSeconds; // Convert bytes to bits, then to Mbps
-};
-
 export function hash(data: string): string {
     return createHash('sha256').update(data).digest('hex');
 }

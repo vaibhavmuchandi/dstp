@@ -22,7 +22,10 @@ export type RECEIVER_DATA = {
 
 export type SENDER_DATA = {
     merkleRoot: string,
+    stamps: Array<STAMP>
     merkleTree: string[][],
     clientId?: string,
     selfId?: string
 }
+
+export type STAMP = { intervalDuration: number, size: number }
