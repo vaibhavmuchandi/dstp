@@ -1,10 +1,4 @@
-import { createHash } from 'crypto';
-
-function hash(data: string): string {
-    return createHash('sha256').update(data).digest('hex');
-}
-
-export function constructMerkleTree(packetHashes: string[]): { merkleRoot: string; merkleTree: string[][] } {
+export function constructMerkleTree(packetHashes: string[], hash: Function): { merkleRoot: string; merkleTree: string[][] } {
     let layers = [packetHashes]; // Initialize the first layer with the packet hashes
 
     // Build the tree layer by layer
@@ -39,7 +33,7 @@ export function generateProof(index: number, merkleTree: string[][]): string[] {
     return proof;
 }
 
-export function verifyProof(leaf: string, proof: string[], root: string, nounce: number): boolean {
+export function verifyProof(leaf: string, proof: string[], root: string, nounce: number, hash: Function): boolean {
     // Start by hashing the leaf node, which is an array of strings
     let computedHash = leaf
 

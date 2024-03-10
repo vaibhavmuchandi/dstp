@@ -2,7 +2,7 @@ import { Multiaddr } from "@multiformats/multiaddr"
 import EventEmitter from "eventemitter3"
 
 import { INTERNAL_EVENTS, PROTOCOL_EVENTS, TSPEEDTEST_EVENTS } from "../utils/events.js";
-import { Libp2pNode, RECEIVER_DATA } from "../utils/types.js";
+import { Libp2pNode, RECEIVER_DATA } from "common-js";
 import { _downloadData, _uploadData, _pingTest } from "./ST.js";
 
 export class DSTPClient {

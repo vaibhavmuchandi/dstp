@@ -1,13 +1,14 @@
 
 import { pipe } from "it-pipe";
 import { pushable } from "it-pushable"
-import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/helper.js";
-import { fetchRandomness } from "../utils/randomness.js";
-import { constructMerkleTree } from "../utils/merkle.js";
 import { Connection, Stream } from "@libp2p/interface";
 import EventEmitter from "eventemitter3";
-import { SENDER_DATA } from "../utils/types.js";
+import { SENDER_DATA } from "common-js";
+import { constructMerkleTree } from "common-js";
+
 import { INTERNAL_EVENTS } from "../utils/events.js";
+import { calculateSpeedMbpsRealTime, createPacket, hashPacket, hash } from "../utils/helper.js";
+import { fetchRandomness } from "../utils/randomness.js";
 
 export async function _uploadTest({ stream }) {
     console.log('Client connected for upload speed test');
@@ -128,7 +129,7 @@ export async function _downloadTest(connection: Connection, stream: Stream, EE: 
         }
     }
     console.log('Final download speed: ', downloadSpeed)
-    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
+    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
     console.log(`Merkle Size: `, merkleTree.length)
     console.log('Merkle Root:', merkleRoot);
     const senderData: SENDER_DATA = {

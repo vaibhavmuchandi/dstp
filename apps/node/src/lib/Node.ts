@@ -1,6 +1,6 @@
 
 import EventEmitter from "eventemitter3";
-import { GeoLocation, Libp2pNode, SENDER_DATA } from "../utils/types.js";
+import { GeoLocation, Libp2pNode, SENDER_DATA } from "common-js";
 import { DSTPProtocol } from "./Protocol.js";
 import { _uploadTest, _downloadTest, _pingTest } from "./ST.js";
 import { INTERNAL_EVENTS, PROTOCOL_EVENTS } from "../utils/events.js";

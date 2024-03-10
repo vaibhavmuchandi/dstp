@@ -1,7 +1,7 @@
 import { DSTPClient, createLibp2pNode } from "client"
 import { multiaddr } from "@multiformats/multiaddr";
 
-const nodeAddr = multiaddr("/ip4/122.167.191.249/tcp/44444/ws/p2p/12D3KooWL55HLG83Lu8NS5rpDj3htuHPkNA6nCBVjBmKFPrihya7")
+const nodeAddr = multiaddr("/ip4/122.167.191.249/tcp/44444/ws/p2p/12D3KooWMzhd5YGzYTxrajpLUUXg4MQnNbewqFd6sULpZt9g6RFG")
 
 async function main() {
     const node = await createLibp2pNode()

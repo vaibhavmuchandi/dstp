@@ -1,6 +1,9 @@
-import { Libp2pNode, RECEIVER_DATA, SENDER_DATA } from "../utils/types.js"
+import { Libp2pNode, RECEIVER_DATA, SENDER_DATA } from "common-js"
+import { verifyProof } from "common-js"
+
 import { PROTOCOL_EVENTS } from "../utils/events.js"
-import { verifyProof } from "../utils/merkle.js"
+import { hash } from "../utils/helper.js"
+
 
 export class DSTPProtocol {
     private node: Libp2pNode
@@ -37,13 +40,13 @@ export class DSTPProtocol {
         })
     }
 
-    private _handleRootMsg(msg: Buffer) {
+    private _handleRootMsg(msg: Uint8Array) {
         const data: RECEIVER_DATA = JSON.parse(new TextDecoder().decode(msg))
         this.rootPool.set(data.merkleRoot, data)
         this._confirm(data.merkleRoot)
     }
 
-    private _handleRawMsg(msg: Buffer) {
+    private _handleRawMsg(msg: Uint8Array) {
         const data: SENDER_DATA = JSON.parse(new TextDecoder().decode(msg))
         this.memPool.set(data.merkleRoot, data)
     }
@@ -53,10 +56,12 @@ export class DSTPProtocol {
             const { merkleTree } = this.memPool.get(merkleRoot)
             const { nounce, proof } = this.rootPool.get(merkleRoot)
             const leaf = merkleTree[0][nounce]
-            const isConfirmed = verifyProof(leaf, proof, merkleRoot, nounce)
+            const isConfirmed = verifyProof(leaf, proof, merkleRoot, nounce, hash)
             if (isConfirmed) {
+                console.log('\x1b[32m%s\x1b[0m', 'Speed Test Confirmed');
                 this.confirmedPool.add(merkleRoot)
             } else {
+                console.log('\x1b[31m%s\x1b[0m', 'Speed Test Rejected');
                 this.rejected.add(merkleRoot)
             }
         } else {

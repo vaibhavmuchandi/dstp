@@ -1,11 +1,11 @@
 import { Stream } from "@libp2p/interface";
 import { pushable } from "it-pushable";
-import { calculateSpeedMbpsRealTime, createPacket, hashPacket } from "../utils/helper.js";
+import { calculateSpeedMbpsRealTime, createPacket, hashPacket, hash } from "../utils/helper.js";
 import { pipe } from "it-pipe";
 import { INTERNAL_EVENTS, SPEEDTEST_EVENTS } from "../utils/events.js";
 import EventEmitter from "eventemitter3";
-import { constructMerkleTree, generateProof } from "../utils/merkle.js";
-import { RECEIVER_DATA } from "../utils/types.js";
+import { constructMerkleTree, generateProof } from "common-js";
+import { RECEIVER_DATA } from "common-js";
 
 export async function _uploadData(stream: Stream, EE: EventEmitter) {
     const packetSize = 5241920; // 5 MB per packet
@@ -120,7 +120,7 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
 
     // Wait for both the packet receiving and ACK sending to complete
     await Promise.all([packetReceivingPromise, ackSendingPromise]);
-    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes);
+    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
     const nounce = Math.floor(Math.random() * merkleTree.length)
     const proof = generateProof(nounce, merkleTree)
     console.log(`Merkle Root: ${merkleRoot}`)

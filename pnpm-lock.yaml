@@ -96,6 +96,9 @@ importers:
       '@libp2p/websockets':
         specifier: ^8.0.16
         version: 8.0.16
+      common-js:
+        specifier: workspace:^
+        version: link:../../packages/common-js
       eventemitter3:
         specifier: ^5.0.1
         version: 5.0.1
@@ -191,6 +194,9 @@ importers:
       '@multiformats/multiaddr':
         specifier: ^12.1.14
         version: 12.1.14
+      common-js:
+        specifier: workspace:^
+        version: link:../common-js
       crypto-browserify:
         specifier: ^3.12.0
         version: 3.12.0
@@ -206,6 +212,31 @@ importers:
       libp2p:
         specifier: ^1.2.4
         version: 1.2.4
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
+  packages/common-js:
+    dependencies:
+      '@chainsafe/libp2p-gossipsub':
+        specifier: ^13.0.0
+        version: 13.0.0
+      '@libp2p/identify':
+        specifier: ^1.0.15
+        version: 1.0.15
+      '@libp2p/interface':
+        specifier: ^1.1.4
+        version: 1.1.4
+      '@libp2p/ping':
+        specifier: ^1.0.12
+        version: 1.0.12
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
+  packages/common-types:
     devDependencies:
       typescript:
         specifier: ^5.3.3

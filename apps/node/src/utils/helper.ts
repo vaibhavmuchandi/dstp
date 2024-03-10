@@ -1,5 +1,9 @@
 import { createHash } from 'crypto';
 
+export function hash(data: string): string {
+    return createHash('sha256').update(data).digest('hex');
+}
+
 export const calculateSpeedMbpsRealTime = (bytes: number, durationSeconds: number): number => {
     return (bytes * 8) / (1024 * 1024) / durationSeconds; // Convert bytes to bits, then to Mbps
 };

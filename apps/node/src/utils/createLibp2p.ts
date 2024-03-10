@@ -7,7 +7,7 @@ import { identify } from "@libp2p/identify";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { ping } from "@libp2p/ping";
 
-import { Libp2pNode } from "./types.js";
+import { Libp2pNode } from "common-js";
 
 export const createLibp2pNode = async (): Promise<Libp2pNode> => {
     const node = await createLibp2p({

@@ -1,4 +1,4 @@
-import { GossipsubEvents } from "@chainsafe/libp2p-gossipsub/dist/src";
+import { GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
 import { Identify } from "@libp2p/identify";
 import { Libp2p, PubSub } from "@libp2p/interface";
 import { PingService } from "@libp2p/ping"

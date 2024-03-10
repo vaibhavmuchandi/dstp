@@ -4,6 +4,9 @@ export function calculateSpeedMbpsRealTime(bytes: number, durationSeconds: numbe
     return (bytes * 8) / (1024 * 1024) / durationSeconds; // Convert bytes to bits, then to Mbps
 };
 
+export function hash(data: string): string {
+    return createHash('sha256').update(data).digest('hex');
+}
 
 export function createPacket(seqNum, size) {
     const buffer = new ArrayBuffer(size); // Create an ArrayBuffer of the specified size
