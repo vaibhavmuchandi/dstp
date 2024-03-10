@@ -1,4 +1,4 @@
-import { Libp2pNode, RECEIVER_DATA, SENDER_DATA, calculateSpeedMbps } from "common-js"
+import { Libp2pNode, RECEIVER_DATA, SENDER_DATA, calculateAverageSpeed } from "common-js"
 import { verifyProof } from "common-js"
 
 import { PROTOCOL_EVENTS } from "../utils/events.js"
@@ -59,8 +59,8 @@ export class DSTPProtocol {
             const isConfirmed = verifyProof(leaf, proof, merkleRoot, nounce, hash)
             if (isConfirmed) {
                 console.log('\x1b[32m%s\x1b[0m', 'Data Integrity Done');
-                // const speed = calculateSpeedMbps(size, startTime, endTime)
-                // console.log(`Calculated Speed from Validators: ${speed}, speed reported by client: ${speedMbps}`)
+                const speed = calculateAverageSpeed(stamps)
+                console.log(`Estimated speed: ${speed}, reported speed ${speedMbps}`)
                 this.confirmedPool.add(merkleRoot)
             } else {
                 console.log('\x1b[31m%s\x1b[0m', 'Speed Test Rejected');
