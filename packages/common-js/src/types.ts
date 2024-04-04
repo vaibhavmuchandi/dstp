@@ -12,7 +12,7 @@ export type GeoLocation = {
 export type Libp2pNode = Libp2p<{ identify: Identify, pubsub: PubSub<GossipsubEvents>, ping: PingService }>
 
 export type RECEIVER_DATA = {
-    merkleRoot: string,
+    testHash: string,
     proof: string[],
     nounce: number,
     speedMbps: number,
@@ -21,7 +21,7 @@ export type RECEIVER_DATA = {
 }
 
 export type SENDER_DATA = {
-    merkleRoot: string,
+    testHash: string,
     stamps: Array<STAMP>
     merkleTree: string[][],
     clientId?: string,
@@ -29,3 +29,15 @@ export type SENDER_DATA = {
 }
 
 export type STAMP = { intervalDuration: number, size: number }
+
+
+export type Block = {
+    testHash: string,
+    nounce: string
+    stamps: string,
+    merkleTree: string,
+    clientId: string,
+    nodeId: string,
+    estimatedSpeed: string,
+    reportedSpeed: string,
+}

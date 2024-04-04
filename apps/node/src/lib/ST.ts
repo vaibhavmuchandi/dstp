@@ -124,11 +124,11 @@ export async function _downloadTest(connection: Connection, stream: Stream, EE: 
         }
     }
     console.log('Final download speed: ', calculateAverageSpeed(stamps))
-    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
+    const { testHash, merkleTree } = constructMerkleTree(packetHashes, hash);
     console.log(`Merkle Size: `, merkleTree.length)
-    console.log('Merkle Root:', merkleRoot);
+    console.log('Merkle Root:', testHash);
     const senderData: SENDER_DATA = {
-        merkleRoot,
+        testHash,
         merkleTree,
         stamps,
         clientId: connection.remotePeer.toString(),

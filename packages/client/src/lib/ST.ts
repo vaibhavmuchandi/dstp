@@ -117,14 +117,14 @@ export async function _downloadData(stream: Stream, EE: EventEmitter) {
     // Wait for both the packet receiving and ACK sending to complete
     await Promise.all([packetReceivingPromise, ackSendingPromise]);
     const downloadSpeed = calculateAverageSpeed(stamps)
-    const { merkleRoot, merkleTree } = constructMerkleTree(packetHashes, hash);
+    const { testHash, merkleTree } = constructMerkleTree(packetHashes, hash);
     const nounce = Math.floor(Math.random() * merkleTree.length)
     const proof = generateProof(nounce, merkleTree)
-    console.log(`Merkle Root: ${merkleRoot}`)
+    console.log(`Merkle Root: ${testHash}`)
     console.log(`Merkle Tree Length: ${merkleTree.length}`)
     const testData: RECEIVER_DATA = {
         speedMbps: downloadSpeed,
-        merkleRoot: merkleRoot,
+        testHash: testHash,
         nounce: nounce,
         proof: proof
     }

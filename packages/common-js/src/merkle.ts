@@ -1,4 +1,4 @@
-export function constructMerkleTree(packetHashes: string[], hash: Function): { merkleRoot: string; merkleTree: string[][] } {
+export function constructMerkleTree(packetHashes: string[], hash: Function): { testHash: string; merkleTree: string[][] } {
     let layers = [packetHashes]; // Initialize the first layer with the packet hashes
 
     // Build the tree layer by layer
@@ -17,8 +17,8 @@ export function constructMerkleTree(packetHashes: string[], hash: Function): { m
         layers.push(nextLayer); // Add the next layer to the tree
     }
 
-    const merkleRoot = layers[layers.length - 1][0]; // The last layer contains the Merkle root
-    return { merkleRoot, merkleTree: layers };
+    const testHash = layers[layers.length - 1][0]; // The last layer contains the Merkle root
+    return { testHash, merkleTree: layers };
 }
 
 export function generateProof(index: number, merkleTree: string[][]): string[] {

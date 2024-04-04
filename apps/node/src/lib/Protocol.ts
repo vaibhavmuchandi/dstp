@@ -42,33 +42,32 @@ export class DSTPProtocol {
 
     private _handleRootMsg(msg: Uint8Array) {
         const data: RECEIVER_DATA = JSON.parse(new TextDecoder().decode(msg))
-        this.rootPool.set(data.merkleRoot, data)
-        this._confirm(data.merkleRoot)
+        this.rootPool.set(data.testHash, data)
+        this._confirm(data.testHash)
     }
 
     private _handleRawMsg(msg: Uint8Array) {
         const data: SENDER_DATA = JSON.parse(new TextDecoder().decode(msg))
-        this.memPool.set(data.merkleRoot, data)
+        this.memPool.set(data.testHash, data)
     }
 
-    private _confirm(merkleRoot: string) {
-        if (this.memPool.get(merkleRoot) && this.rootPool.get(merkleRoot)) {
-            const { merkleTree, stamps } = this.memPool.get(merkleRoot)
-            const { nounce, proof, speedMbps } = this.rootPool.get(merkleRoot)
+    private _confirm(testHash: string) {
+        if (this.memPool.get(testHash) && this.rootPool.get(testHash)) {
+            const { merkleTree, stamps } = this.memPool.get(testHash)
+            const { nounce, proof, speedMbps } = this.rootPool.get(testHash)
             const leaf = merkleTree[0][nounce]
-            const isConfirmed = verifyProof(leaf, proof, merkleRoot, nounce, hash)
+            const isConfirmed = verifyProof(leaf, proof, testHash, nounce, hash)
             if (isConfirmed) {
                 console.log('\x1b[32m%s\x1b[0m', 'Data Integrity Done');
                 const speed = calculateAverageSpeed(stamps)
                 console.log(`Estimated speed: ${speed}, reported speed ${speedMbps}`)
-                this.confirmedPool.add(merkleRoot)
             } else {
                 console.log('\x1b[31m%s\x1b[0m', 'Speed Test Rejected');
-                this.rejected.add(merkleRoot)
+                this.rejected.add(testHash)
             }
         } else {
             setTimeout(() => {
-                this._confirm(merkleRoot)
+                this._confirm(testHash)
             }, 5000)
         }
     }
